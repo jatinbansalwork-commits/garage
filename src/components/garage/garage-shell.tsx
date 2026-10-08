@@ -3,14 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
-import { ArticleBackLink } from "@/components/craft/article-back-link";
 import { useSubpageScrollReset } from "@/hooks/use-index-scroll-reset";
 import { FOCUS_RING } from "@/lib/a11y";
 import { trackGarageView } from "@/lib/analytics";
 import { ROUTES } from "@/lib/constants";
 import { GARAGE_ENTRIES, GARAGE_NAV, GARAGE_TAGLINE, type GarageNavItem, type GarageStatus } from "@/lib/garage";
-import { BACK_HOME } from "@/lib/session-navigation";
-
 const STATUS_DOT: Record<GarageStatus, string> = {
   new: "bg-[#02BCEA]",
   tuning: "bg-[#FFB224]",
@@ -102,8 +99,6 @@ export function GarageShell({ children }: { children: ReactNode }) {
       className="no-scrollbar fixed inset-0 z-10 overflow-x-hidden overflow-y-auto bg-background text-white outline-none"
     >
       <div className="mx-auto max-w-[1044px] px-5 pt-16 pb-28 sm:px-8 lg:pt-20">
-        <ArticleBackLink fallback={BACK_HOME} className="mb-10 inline-block text-white/45 hover:text-white" />
-
         <div className="grid gap-8 lg:grid-cols-[200px_minmax(0,783px)] lg:gap-x-[61px] lg:gap-y-10">
           <div className="flex items-center">
             <GarageLogo />
