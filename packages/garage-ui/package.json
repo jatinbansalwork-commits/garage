@@ -1,8 +1,25 @@
 {
   "name": "@jatin_ux/garage",
-  "version": "0.1.0",
-  "description": "Garage interface components for React: Button and Input.",
+  "version": "0.1.1",
+  "description": "Tactile React Button and Input components with press depth, haptics, click sounds, loading states and reduced-motion support.",
   "license": "MIT",
+  "author": "Jatin Bansal",
+  "homepage": "https://garage-dun-phi.vercel.app/garage",
+  "bugs": {
+    "url": "https://github.com/jatinbansalwork-commits/garage/issues"
+  },
+  "keywords": [
+    "react",
+    "button",
+    "input",
+    "ui",
+    "components",
+    "tailwind",
+    "framer-motion",
+    "accessible",
+    "haptics",
+    "nextjs"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jatinbansalwork-commits/garage.git",

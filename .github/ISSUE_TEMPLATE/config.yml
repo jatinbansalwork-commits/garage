@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation and live demos
+    url: https://garage-dun-phi.vercel.app/garage
+    about: Props, examples and a playground for every component.
+  - name: Package README
+    url: https://github.com/jatinbansalwork-commits/garage/tree/main/packages/garage-ui#readme
+    about: Install, Tailwind setup and troubleshooting.

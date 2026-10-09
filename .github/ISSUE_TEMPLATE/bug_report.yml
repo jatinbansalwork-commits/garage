@@ -1,0 +1,27 @@
+name: Bug report
+description: Something doesn't work or look the way it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Code to reproduce
+      description: The smallest snippet that shows the problem.
+      render: tsx
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: "@jatin_ux/garage 0.1.1, react 19.2, framer-motion 12"
+  - type: input
+    id: env
+    attributes:
+      label: Browser and device
+      placeholder: Chrome 140 on macOS, iPhone 16 Safari...
