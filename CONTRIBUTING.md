@@ -45,8 +45,16 @@ Before opening a pull request:
    simulator if it affects pressing.
 3. Keep the pull request focused on one change and describe what it does and why.
 
+## Versioning
+
+`version` in `packages/garage-ui/package.json` is always the next release. Add every package change
+to `packages/garage-ui/CHANGELOG.md` under **Unreleased**; don't bump the version per change.
+
 ## Releasing (maintainers)
 
-1. Bump `version` in `packages/garage-ui/package.json`.
-2. From `packages/garage-ui`, run `npm publish --access public`.
-3. Tag the release: `git tag garage-ui@<version> && git push --tags`.
+1. In `packages/garage-ui/CHANGELOG.md`, rename `## Unreleased (x.y.z)` to `## x.y.z` and commit.
+2. Tag and push: `git tag garage-ui@x.y.z && git push origin main garage-ui@x.y.z`.
+3. The Release workflow checks the tag matches the package version, builds, publishes to npm and
+   creates a GitHub release.
+4. Start the next cycle: bump `version` (patch, minor or major) and add a new
+   `## Unreleased (next)` heading.

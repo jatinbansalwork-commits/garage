@@ -1,0 +1,36 @@
+name: Release
+
+on:
+  push:
+    tags: ["garage-ui@*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: Check tag matches package version
+        run: |
+          version=$(node -p "require('./packages/garage-ui/package.json').version")
+          if [ "garage-ui@$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match package version $version"; exit 1
+          fi
+      - name: Install site dependencies (the package builds from the site's source)
+        run: npm ci
+      - name: Install package dependencies
+        run: npm ci
+        working-directory: packages/garage-ui
+      - run: npm publish --access public
+        working-directory: packages/garage-ui
+      - name: Create GitHub release
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
