@@ -2,12 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useSubpageScrollReset } from "@/hooks/use-index-scroll-reset";
 import { FOCUS_RING } from "@/lib/a11y";
 import { trackGarageView } from "@/lib/analytics";
 import { ROUTES } from "@/lib/constants";
-import { GARAGE_ENTRIES, GARAGE_NAV, GARAGE_TAGLINE, type GarageNavItem, type GarageStatus } from "@/lib/garage";
+import {
+  GARAGE_DOC_TAGLINES,
+  GARAGE_DOCS_NAV,
+  GARAGE_ENTRIES,
+  GARAGE_NAV,
+  GARAGE_TAGLINE,
+  type GarageNavItem,
+  type GarageStatus,
+} from "@/lib/garage";
+
 const STATUS_DOT: Record<GarageStatus, string> = {
   new: "bg-[#02BCEA]",
   tuning: "bg-[#FFB224]",
@@ -18,7 +27,7 @@ function itemHref(slug: string) {
   return slug ? `${ROUTES.garage}/${slug}` : ROUTES.garage;
 }
 
-const BUILT_ITEMS = GARAGE_NAV.flatMap((group) => group.items).filter(
+const BUILT_ITEMS = [...GARAGE_NAV.flatMap((group) => group.items), ...GARAGE_DOCS_NAV].filter(
   (item): item is GarageNavItem & { slug: string } => item.slug !== undefined,
 );
 
@@ -35,7 +44,15 @@ function GarageLogo() {
   );
 }
 
-function NavItem({ item, pathname }: { item: GarageNavItem; pathname: string }) {
+function NavItem({
+  item,
+  pathname,
+  variant = "default",
+}: {
+  item: GarageNavItem;
+  pathname: string;
+  variant?: "default" | "docs";
+}) {
   if (item.slug === undefined) {
     return (
       <li className="py-1 leading-5">
@@ -53,6 +70,22 @@ function NavItem({ item, pathname }: { item: GarageNavItem; pathname: string }) 
 
   const href = itemHref(item.slug);
   const active = pathname === href;
+
+  if (variant === "docs") {
+    return (
+      <li>
+        <Link
+          href={href}
+          aria-current={active ? "page" : undefined}
+          className={`block rounded-lg px-2.5 py-1.5 text-[14px] transition-colors ${FOCUS_RING} ${
+            active ? "bg-white/10 text-white" : "text-white/55 hover:bg-white/[0.06] hover:text-white"
+          }`}
+        >
+          {item.label}
+        </Link>
+      </li>
+    );
+  }
 
   return (
     <li className="py-1 leading-5">
@@ -74,17 +107,25 @@ function NavItem({ item, pathname }: { item: GarageNavItem; pathname: string }) 
 export function GarageShell({ children }: { children: ReactNode }) {
   useSubpageScrollReset();
   const pathname = usePathname();
+  const contentRef = useRef<HTMLDivElement>(null);
   const entry = GARAGE_ENTRIES.find((item) => pathname === itemHref(item.slug));
-  const viewSlug = entry?.slug ?? (pathname === ROUTES.garage ? "purpose" : undefined);
+  const docSlug = GARAGE_DOCS_NAV.find((item) => item.slug && pathname === itemHref(item.slug))?.slug;
+  const viewSlug = entry?.slug ?? docSlug ?? (pathname === ROUTES.garage ? "purpose" : undefined);
 
   useEffect(() => {
     if (viewSlug) trackGarageView(viewSlug);
   }, [viewSlug]);
 
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, left: 0 });
+  }, [pathname]);
+
   const tagline = entry ? (
     <>
       <span className="text-white">{entry.title}</span> {entry.tagline}
     </>
+  ) : docSlug && GARAGE_DOC_TAGLINES[docSlug] ? (
+    GARAGE_DOC_TAGLINES[docSlug]
   ) : (
     GARAGE_TAGLINE
   );
@@ -96,19 +137,48 @@ export function GarageShell({ children }: { children: ReactNode }) {
       tabIndex={-1}
       data-cursor-label="mind the loose parts"
       data-cursor-color="cyan"
-      className="no-scrollbar fixed inset-0 z-10 overflow-x-hidden overflow-y-auto bg-background text-white outline-none"
+      className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-background text-white outline-none"
     >
-      <div className="mx-auto max-w-[1044px] px-5 pt-16 pb-28 sm:px-8 lg:pt-20">
-        <div className="grid gap-8 lg:grid-cols-[200px_minmax(0,783px)] lg:gap-x-[61px] lg:gap-y-10">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1044px] flex-1 flex-col px-5 sm:px-8">
+        <header className="grid shrink-0 gap-6 bg-background pt-16 pb-6 lg:grid-cols-[200px_minmax(0,783px)] lg:gap-x-[61px] lg:pt-20 lg:pb-8">
           <div className="flex items-center">
             <GarageLogo />
           </div>
           <h1 className="text-[16px] leading-5 text-[#EDEDED] lg:self-center 2xl:text-[18px]">{tagline}</h1>
 
-          <aside className="no-scrollbar lg:sticky lg:top-20 lg:max-h-[calc(100dvh-5rem)] lg:self-start lg:overflow-y-auto">
-            <nav aria-label="Garage" className="hidden text-[16px] lg:block 2xl:text-[18px]">
+          <nav aria-label="Garage" className="no-scrollbar -mx-1 flex gap-4 overflow-x-auto px-1 text-[14px] lg:col-span-2 lg:hidden">
+            {BUILT_ITEMS.map((item) => {
+              const href = itemHref(item.slug);
+              const active = pathname === href;
+              const isDoc = GARAGE_DOCS_NAV.some((doc) => doc.slug === item.slug);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  aria-current={active ? "page" : undefined}
+                  className={`shrink-0 whitespace-nowrap rounded-sm font-semibold ${FOCUS_RING} ${
+                    active
+                      ? isDoc
+                        ? "rounded-lg bg-white/10 px-2.5 py-1 text-white"
+                        : "text-white underline decoration-[#02BCEA] decoration-wavy decoration-[1.5px] underline-offset-[5px]"
+                      : "text-white/55"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </header>
+
+        <div className="grid min-h-0 flex-1 gap-8 lg:grid-cols-[200px_minmax(0,783px)] lg:gap-x-[61px]">
+          <aside className="hidden h-full min-h-0 flex-col lg:flex">
+            <nav
+              aria-label="Garage"
+              className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-4 text-[16px] 2xl:text-[18px]"
+            >
               {GARAGE_NAV.map((group) => (
-                <div key={group.title} className="mb-12">
+                <div key={group.title} className="mb-12 last:mb-4">
                   <h3 className="mb-2 leading-5 text-[#A0A0A0]">{group.title}</h3>
                   <ul>
                     {group.items.map((item) => (
@@ -119,29 +189,32 @@ export function GarageShell({ children }: { children: ReactNode }) {
               ))}
             </nav>
 
-            <nav aria-label="Garage" className="no-scrollbar -mx-1 flex gap-4 overflow-x-auto px-1 text-[14px] lg:hidden">
-              {BUILT_ITEMS.map((item) => {
-                const href = itemHref(item.slug);
-                const active = pathname === href;
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    aria-current={active ? "page" : undefined}
-                    className={`shrink-0 whitespace-nowrap rounded-sm font-semibold ${FOCUS_RING} ${
-                      active
-                        ? "text-white underline decoration-[#02BCEA] decoration-wavy decoration-[1.5px] underline-offset-[5px]"
-                        : "text-white/55"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
+            <div className="mt-auto shrink-0 border-t border-white/10 bg-background pt-5 pb-6">
+              <nav aria-label="Docs">
+                <p className="mb-2 px-2.5 text-[11px] font-semibold tracking-[0.08em] text-white/35 uppercase">
+                  Docs
+                </p>
+                <ul className="space-y-0.5">
+                  {GARAGE_DOCS_NAV.map((item) => (
+                    <NavItem key={item.label} item={item} pathname={pathname} variant="docs" />
+                  ))}
+                </ul>
+              </nav>
+              <p className="mt-5 px-2.5 text-[12px] leading-5 text-white/35">
+                Designed by{" "}
+                <a
+                  href="https://github.com/jatinbansalwork-commits"
+                  className={`rounded-sm text-white/55 transition-colors hover:text-white ${FOCUS_RING}`}
+                >
+                  Jatin Bansal
+                </a>
+              </p>
+            </div>
           </aside>
 
-          <div className="min-w-0">{children}</div>
+          <div ref={contentRef} className="no-scrollbar min-h-0 overflow-y-auto pb-28">
+            {children}
+          </div>
         </div>
       </div>
     </main>

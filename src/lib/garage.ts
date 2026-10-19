@@ -39,6 +39,7 @@ export const GARAGE_NAV: GarageNavGroup[] = [
     items: [
       { label: "Button", slug: "button" },
       { label: "Input", slug: "input" },
+      { label: "Slide to confirm" },
       { label: "Select" },
       { label: "Textarea" },
       { label: "Checkbox" },
@@ -58,6 +59,17 @@ export const GARAGE_NAV: GarageNavGroup[] = [
     ],
   },
 ];
+
+/** Site docs, rendered under the main nav the same way Spinkit does. */
+export const GARAGE_DOCS_NAV: GarageNavItem[] = [
+  { label: "Pair with brand", slug: "brand" },
+  { label: "Release notes", slug: "release-notes" },
+];
+
+export const GARAGE_DOC_TAGLINES: Record<string, string> = {
+  brand: "Drop a hex. See every control wear it.",
+  "release-notes": "What changed, and why it mattered.",
+};
 
 export const GARAGE_ENTRIES: GarageEntry[] = [
   {

@@ -1,25 +1,30 @@
 # Garage
 
-A workbench for interface components. Each one is built in the open, tuned until a press, a hover or
-a loading state feels physical, and documented with a live playground.
+A workbench for interface components. Each piece is built in the open, tuned until a press or a
+focus ring feels physical, and documented with a live playground.
 
 **Live site:** [garage-dun-phi.vercel.app/garage](https://garage-dun-phi.vercel.app/garage)
 **npm:** [`@jatin_ux/garage`](https://www.npmjs.com/package/@jatin_ux/garage)
+**Release notes:** [Changelog](packages/garage-ui/CHANGELOG.md) ·
+[on the site](https://garage-dun-phi.vercel.app/garage/release-notes)
+
+[![npm](https://img.shields.io/npm/v/@jatin_ux/garage)](https://www.npmjs.com/package/@jatin_ux/garage)
+[![license](https://img.shields.io/npm/l/@jatin_ux/garage)](LICENSE)
 
 ## What's inside
 
-| Component       | What it does                                                                                     | On npm |
-| --------------- | ------------------------------------------------------------------------------------------------ | ------ |
-| Button          | One button with independent variant, color and size props, press depth, haptics and click sounds | Yes    |
-| Input           | A text field that shares the Button's sizes, colors and shapes so the two line up in a form      | Yes    |
-| Gooey Tooltip   | A panel that melts out of its trigger instead of fading in                                       | Site only |
-| Minimap         | A strip of ticks that swells under the cursor, with a springy playhead                           | Site only |
-| Dev Tools Menu  | A floating badge that grows into a full menu as one continuous shape                             | Site only |
+| Piece          | What it does                                                                                     | Where      |
+| -------------- | ------------------------------------------------------------------------------------------------ | ---------- |
+| Button         | Variant, colour, size, press depth, haptics, optional click sound, loading                       | npm · site |
+| Input          | Text field on the same size and colour scale, with clear / prefix / suffix / error               | npm · site |
+| Gooey Tooltip  | A panel that melts out of its trigger                                                            | site only  |
+| Minimap        | Ticks that swell under the cursor, with a springy playhead                                       | site only  |
+| Dev Tools Menu | A badge that grows into a full menu as one shape                                                 | site only  |
 
-Every component respects reduced motion, works with the keyboard, and announces loading states to
-screen readers.
+Docs on the site: [Pair with brand](https://garage-dun-phi.vercel.app/garage/brand) ·
+[Release notes](https://garage-dun-phi.vercel.app/garage/release-notes).
 
-## Use the components
+## Use the package
 
 ```bash
 npm install @jatin_ux/garage framer-motion
@@ -55,22 +60,21 @@ npm run dev
 
 Open [localhost:3000/garage](http://localhost:3000/garage).
 
-| Script          | What it does                     |
-| --------------- | -------------------------------- |
-| `npm run dev`   | Start the site in dev mode       |
-| `npm run build` | Production build                 |
-| `npm run lint`  | Lint with ESLint                 |
+| Script          | What it does               |
+| --------------- | -------------------------- |
+| `npm run dev`   | Start the site in dev mode |
+| `npm run build` | Production build           |
+| `npm run lint`  | Lint with ESLint           |
 
 ## Project layout
 
 ```
-src/app/garage/              Site routes (index and one page per component)
-src/components/garage/       Components, demos and the playground
-packages/garage-ui/          The published npm package (@jatin_ux/garage)
+src/app/garage/              Site routes (purpose, components, docs)
+src/components/garage/       Components, demos, playground, docs pages
+packages/garage-ui/          Published npm package (@jatin_ux/garage)
 ```
 
-The package builds straight from the site's source, so the npm components and the live demos are
-always the same code.
+The package builds from the site's source, so npm and the live demos stay the same code.
 
 ## Help and feedback
 

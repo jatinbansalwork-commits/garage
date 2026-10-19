@@ -1,14 +1,15 @@
 # @jatin_ux/garage
 
-Tactile React buttons and inputs: press depth, haptics, optional click sounds, loading states and
-reduced-motion support, all built in. From [Garage](https://garage-dun-phi.vercel.app/garage), a
-workbench for interface components.
+Tactile React controls from [Garage](https://garage-dun-phi.vercel.app/garage): press depth, haptics,
+optional click sounds, loading states and reduced-motion support.
 
 [![npm](https://img.shields.io/npm/v/@jatin_ux/garage)](https://www.npmjs.com/package/@jatin_ux/garage)
-[![license](https://img.shields.io/npm/l/@jatin_ux/garage)](LICENSE)
+[![license](https://img.shields.io/npm/l/@jatin_ux/garage)](../../LICENSE)
 
 **Live demos:** [Button](https://garage-dun-phi.vercel.app/garage/button) ·
-[Input](https://garage-dun-phi.vercel.app/garage/input)
+[Input](https://garage-dun-phi.vercel.app/garage/input) ·
+[Release notes](https://garage-dun-phi.vercel.app/garage/release-notes) ·
+[Changelog](./CHANGELOG.md)
 
 ## Requirements
 
@@ -179,4 +180,4 @@ App Router. Event handlers like `onClick` and `onChange` still need to live in a
 
 ## License
 
-[MIT](LICENSE) © Jatin Bansal
+[MIT](../../LICENSE) © Jatin Bansal
