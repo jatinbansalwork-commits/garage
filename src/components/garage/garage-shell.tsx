@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
+import { GaragePageAside } from "@/components/garage/garage-page-aside";
 import { useSubpageScrollReset } from "@/hooks/use-index-scroll-reset";
 import { FOCUS_RING } from "@/lib/a11y";
 import { trackGarageView } from "@/lib/analytics";
@@ -139,14 +140,15 @@ export function GarageShell({ children }: { children: ReactNode }) {
       data-cursor-color="cyan"
       className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-background text-white outline-none"
     >
-      <div className="mx-auto flex min-h-0 w-full max-w-[1044px] flex-1 flex-col px-5 sm:px-8">
-        <header className="grid shrink-0 gap-6 bg-background pt-16 pb-6 lg:grid-cols-[200px_minmax(0,783px)] lg:gap-x-[61px] lg:pt-20 lg:pb-8">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1240px] flex-1 flex-col px-5 sm:px-8">
+        <header className="grid shrink-0 gap-6 bg-background pt-16 pb-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-x-[61px] xl:grid-cols-[200px_minmax(0,1fr)_160px] lg:pt-20 lg:pb-8">
           <div className="flex items-center">
             <GarageLogo />
           </div>
           <h1 className="text-[16px] leading-5 text-[#EDEDED] lg:self-center 2xl:text-[18px]">{tagline}</h1>
+          <div className="hidden xl:block" aria-hidden />
 
-          <nav aria-label="Garage" className="no-scrollbar -mx-1 flex gap-4 overflow-x-auto px-1 text-[14px] lg:col-span-2 lg:hidden">
+          <nav aria-label="Garage" className="no-scrollbar -mx-1 flex gap-4 overflow-x-auto px-1 text-[14px] lg:col-span-2 xl:col-span-3 lg:hidden">
             {BUILT_ITEMS.map((item) => {
               const href = itemHref(item.slug);
               const active = pathname === href;
@@ -171,7 +173,7 @@ export function GarageShell({ children }: { children: ReactNode }) {
           </nav>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-8 lg:grid-cols-[200px_minmax(0,783px)] lg:gap-x-[61px]">
+        <div className="grid min-h-0 flex-1 gap-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-x-[61px] xl:grid-cols-[200px_minmax(0,1fr)_160px]">
           <aside className="hidden h-full min-h-0 flex-col lg:flex">
             <nav
               aria-label="Garage"
@@ -215,6 +217,8 @@ export function GarageShell({ children }: { children: ReactNode }) {
           <div ref={contentRef} className="no-scrollbar min-h-0 overflow-y-auto pb-28">
             {children}
           </div>
+
+          <GaragePageAside scrollRootRef={contentRef} />
         </div>
       </div>
     </main>

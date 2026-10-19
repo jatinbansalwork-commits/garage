@@ -67,9 +67,17 @@ export function PropRow({ name, options, children }: { name: string; options: st
   );
 }
 
+function sectionSlug(title: string) {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
 export function GarageSection({ id, title, children }: { id?: string; title?: string; children: ReactNode }) {
+  const sectionId = id ?? (title ? sectionSlug(title) : undefined);
   return (
-    <section id={id} className="mt-12 scroll-mt-8 border-t border-white/10 pt-12">
+    <section id={sectionId} className="mt-12 scroll-mt-8 border-t border-white/10 pt-12">
       {title ? <h2 className="mb-1 font-medium text-white">{title}</h2> : null}
       {children}
     </section>

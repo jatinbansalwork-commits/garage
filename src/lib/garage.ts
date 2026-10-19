@@ -14,6 +14,11 @@ export interface GarageEntry {
 
 export const GARAGE_TAGLINE = "A workbench for interface components";
 
+/** Mirrors `packages/garage-ui/package.json` — bump when starting a new release cycle. */
+export const GARAGE_PACKAGE_VERSION = "0.8.0";
+export const GARAGE_GITHUB_URL = "https://github.com/jatinbansalwork-commits/garage";
+export const GARAGE_NPM_URL = "https://www.npmjs.com/package/@jatin_ux/garage";
+
 export interface GarageNavItem {
   label: string;
   /** Route segment under /garage. Items without one are not built yet and render struck through. */

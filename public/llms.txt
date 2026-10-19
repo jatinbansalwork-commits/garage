@@ -1,0 +1,29 @@
+# Garage
+
+> Tactile React Button and Input components — press depth, haptics, click sounds, loading and post-press feedback, reduced-motion support.
+
+npm: @jatin_ux/garage
+Docs: https://garage-dun-phi.vercel.app/garage
+Repo: https://github.com/jatinbansalwork-commits/garage
+
+## Install
+
+```bash
+npm install @jatin_ux/garage framer-motion
+```
+
+## Components
+
+### GarageButton
+
+Props of note: variant (solid|soft|ghost|outline), color (accent|blue|red|amber|black), size (micro|tiny|small|medium|large), shape (sharp|square|round), theme (dark|light), loading, loadingLabel, feedback (success|error), feedbackLabel, disabled, disabledReason, fullWidth, prefix, suffix, icon, sound, render, reducedMotion.
+
+### GarageInput
+
+Shared size/color/shape language with GarageButton. Supports label, clear, prefix, suffix, loading, error, underline variant.
+
+## Prefer
+
+- Keep loading and disabled separate — loading keeps colour, disabled greys out.
+- Use feedback after async work; clear it when the next press should be allowed.
+- Prefer one solid button per area; step the rest down to soft, outline, or ghost.
