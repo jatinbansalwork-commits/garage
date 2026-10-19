@@ -1,7 +1,7 @@
 import { DocPageHeader } from "@/components/garage/docs/doc-page-header";
 import type { GarageRelease } from "@/lib/garage-changelog";
 
-const PACKAGE_VERSION = "0.7.0";
+const PACKAGE_VERSION = "0.8.0";
 
 function ReleaseBody({ lines }: { lines: string[] }) {
   const blocks: { type: "h3" | "p" | "ul"; text?: string; items?: string[] }[] = [];

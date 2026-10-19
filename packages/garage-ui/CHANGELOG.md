@@ -3,9 +3,7 @@
 All notable changes to `@jatin_ux/garage`. New entries go under **Unreleased**; on release that
 heading becomes the version number.
 
-## Unreleased (0.8.0)
-
-### Button, end to end
+## 0.8.0 — Button, end to end
 
 Press → wait → done was only half finished. Loading showed the wait; nothing said what happened after.
 
