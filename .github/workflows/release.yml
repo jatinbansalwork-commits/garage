@@ -13,10 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Don't set registry-url here — setup-node would write a placeholder
+      # NODE_AUTH_TOKEN into ~/.npmrc and break OIDC trusted publishing.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org
       - name: Check tag matches package version
         run: |
           version=$(node -p "require('./packages/garage-ui/package.json').version")
@@ -28,8 +29,19 @@ jobs:
       - name: Install package dependencies
         run: npm ci
         working-directory: packages/garage-ui
-      - run: npm publish --access public
+      - name: Publish to npm
         working-directory: packages/garage-ui
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -n "$NODE_AUTH_TOKEN" ]; then
+            echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > "$RUNNER_TEMP/npmrc"
+            export NPM_CONFIG_USERCONFIG="$RUNNER_TEMP/npmrc"
+            npm publish --access public
+          else
+            echo "No NPM_TOKEN — publishing with GitHub OIDC trusted publisher (--provenance)"
+            npm publish --access public --provenance
+          fi
       - name: Create GitHub release
         run: gh release create "$GITHUB_REF_NAME" --generate-notes
         env:
