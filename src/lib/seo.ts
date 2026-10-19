@@ -336,6 +336,10 @@ export const ROOT_METADATA: Metadata = {
   creator: SITE_AUTHOR,
   publisher: SITE_AUTHOR,
   category: "design",
+  // Served from /public — App Router `icon.svg` hits a Turbopack ESM bug (`require is not defined`).
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+  },
   ...buildSocialMetadata({
     title: `${SITE_AUTHOR} — Product Designer Portfolio`,
     description: DEFAULT_SITE_DESCRIPTION,

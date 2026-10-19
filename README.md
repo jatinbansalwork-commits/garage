@@ -35,9 +35,15 @@ npm install @jatin_ux/garage framer-motion
 
 import { GarageButton } from "@jatin_ux/garage";
 
-export function SaveButton({ saving }: { saving: boolean }) {
+export function SaveButton({
+  saving,
+  feedback,
+}: {
+  saving: boolean;
+  feedback: "success" | "error" | null;
+}) {
   return (
-    <GarageButton variant="solid" color="accent" loading={saving} sound>
+    <GarageButton variant="solid" color="accent" loading={saving} feedback={feedback} sound>
       Save
     </GarageButton>
   );

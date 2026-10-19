@@ -105,7 +105,7 @@ export function GarageInput({
     paddingInline: underline ? 0 : metrics.padding,
     gap: metrics.gap,
     fontSize: metrics.font,
-    borderRadius: underline ? 0 : shape === "round" ? 999 : metrics.radius,
+    borderRadius: underline ? 0 : shape === "round" ? 999 : shape === "sharp" ? 0 : metrics.radius,
   } as CSSProperties;
 
   const frame = underline

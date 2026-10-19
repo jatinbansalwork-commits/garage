@@ -51,18 +51,35 @@ import { GarageButton, GarageInput } from "@jatin_ux/garage";
 export function NewsletterForm() {
   const [email, setEmail] = useState("");
   const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<"success" | "error" | null>(null);
 
   return (
     <form
       onSubmit={async (e) => {
         e.preventDefault();
+        setFeedback(null);
         setSaving(true);
-        await subscribe(email);
-        setSaving(false);
+        try {
+          await subscribe(email);
+          setFeedback("success");
+        } catch {
+          setFeedback("error");
+        } finally {
+          setSaving(false);
+        }
       }}
     >
       <GarageInput label="Email" value={email} onChange={setEmail} placeholder="you@studio.com" clearable />
-      <GarageButton type="submit" variant="solid" color="accent" loading={saving} loadingLabel="Subscribing">
+      <GarageButton
+        type="submit"
+        variant="solid"
+        color="accent"
+        fullWidth
+        loading={saving}
+        loadingLabel="Subscribing"
+        feedback={feedback}
+        feedbackLabel={feedback === "success" ? "Subscribed" : "Couldn’t subscribe"}
+      >
         Subscribe
       </GarageButton>
     </form>
@@ -83,11 +100,15 @@ export function NewsletterForm() {
 | `variant`        | `"solid" \| "soft" \| "ghost" \| "outline"`             | `"solid"`  |                                                          |
 | `color`          | `"accent" \| "blue" \| "red" \| "amber" \| "black"`     | `"accent"` |                                                          |
 | `size`           | `"micro" \| "tiny" \| "small" \| "medium" \| "large"`   | `"medium"` |                                                          |
-| `shape`          | `"square" \| "round"`                                   | `"square"` |                                                          |
+| `shape`          | `"sharp" \| "square" \| "round"`                        | `"square"` | Sharp is 0 radius; round is a pill                       |
 | `theme`          | `"dark" \| "light"`                                     | `"dark"`   | Match the surface the button sits on                     |
 | `loading`        | `boolean`                                               | `false`    | Shows a spinner and blocks clicks                        |
 | `loadingLabel`   | `string`                                                | `"Loading"`| Announced to screen readers when loading starts          |
+| `feedback`       | `"success" \| "error" \| null`                          | `null`     | Post-press check/cross; holds the button until cleared   |
+| `feedbackLabel`  | `string`                                                |            | Announced when feedback flips on                         |
 | `disabled`       | `boolean`                                               | `false`    |                                                          |
+| `disabledReason` | `string`                                                |            | Explains a disabled button (`title` + `aria-describedby`)|
+| `fullWidth`      | `boolean`                                               | `false`    | Stretch to the parent width                              |
 | `prefix`         | `ReactNode`                                             |            | Icon or element before the label                         |
 | `suffix`         | `ReactNode`                                             |            | Icon or element after the label                          |
 | `icon`           | `boolean`                                               | `false`    | Square icon-only button. Pass `aria-label` too           |
@@ -148,12 +169,11 @@ import Link from "next/link";
 | `useReducedMotion()`                                      | Hook that tracks the reduced-motion preference          |
 | `Spinner`                                                 | The spinner used inside loading buttons                 |
 | `BUTTON_VARIANTS`, `BUTTON_COLORS`, `BUTTON_SIZES`, `BUTTON_SHAPES`, `INPUT_VARIANTS` | Option lists, handy for pickers and stories |
-| Types: `GarageButtonProps`, `GarageInputProps`, `ButtonVariant`, `ButtonColor`, `ButtonSize`, `ButtonShape`, `ButtonTheme`, `InputVariant` | |
-
+| Types: `GarageButtonProps`, `GarageInputProps`, `ButtonVariant`, `ButtonColor`, `ButtonSize`, `ButtonShape`, `ButtonTheme`, `ButtonFeedback`, `InputVariant` | |
 ## Accessibility
 
 - Buttons and inputs are real `<button>` and `<input>` elements with full keyboard support.
-- Loading states are announced through a polite live region (`loadingLabel`).
+- Loading and feedback states are announced through a polite live region (`loadingLabel`, `feedbackLabel`).
 - Every input has a label, visible or not, and errors set `aria-invalid`.
 - Motion follows the system reduced-motion setting.
 - Sounds never play on touch devices, where they would pause the user's music.

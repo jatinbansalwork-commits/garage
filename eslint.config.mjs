@@ -11,6 +11,7 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    "packages/garage-ui/dist/**",
     "next-env.d.ts",
   ]),
 ]);

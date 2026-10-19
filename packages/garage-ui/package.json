@@ -1,7 +1,7 @@
 {
   "name": "@jatin_ux/garage",
-  "version": "0.7.1",
-  "description": "Tactile React Button and Input components with press depth, haptics, click sounds, loading states and reduced-motion support.",
+  "version": "0.8.0",
+  "description": "Tactile React Button and Input components with press depth, haptics, click sounds, loading and post-press feedback, and reduced-motion support.",
   "license": "MIT",
   "author": "Jatin Bansal",
   "homepage": "https://garage-dun-phi.vercel.app/garage",

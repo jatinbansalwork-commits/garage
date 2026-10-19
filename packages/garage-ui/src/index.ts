@@ -1,11 +1,13 @@
 export {
   BUTTON_COLORS,
+  BUTTON_FEEDBACKS,
   BUTTON_SHAPES,
   BUTTON_SIZES,
   BUTTON_VARIANTS,
   GarageButton,
   Spinner,
   type ButtonColor,
+  type ButtonFeedback,
   type ButtonShape,
   type ButtonSize,
   type ButtonTheme,

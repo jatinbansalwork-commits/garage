@@ -3,7 +3,19 @@
 All notable changes to `@jatin_ux/garage`. New entries go under **Unreleased**; on release that
 heading becomes the version number.
 
-## Unreleased (0.7.1)
+## Unreleased (0.8.0)
+
+### Button, end to end
+
+Press → wait → done was only half finished. Loading showed the wait; nothing said what happened after.
+
+`feedback="success" | "error"` paints the button green or red, swaps the spinner for a check or a cross, and
+announces the outcome. Clear it when you’re ready for the next press. `feedbackLabel` sets the wording.
+
+Also: `fullWidth` stretches to the parent, and `disabledReason` explains a greyed-out button through `title` and
+`aria-describedby` so the reason isn’t only visual.
+
+`shape="sharp"` lands the hard corners next to `square` and `round` — same option on `GarageInput`.
 
 ## 0.7.0 — Input
 

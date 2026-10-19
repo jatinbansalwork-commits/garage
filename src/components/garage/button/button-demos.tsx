@@ -6,12 +6,14 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject } from "rea
 import { BUTTON_CLICKS, playButtonSound } from "@/components/garage/button/button-sounds";
 import {
   BUTTON_COLORS,
+  BUTTON_FEEDBACKS,
   BUTTON_SHAPES,
   BUTTON_SIZES,
   BUTTON_VARIANTS,
   GarageButton,
   Spinner,
   type ButtonColor,
+  type ButtonFeedback,
   type ButtonShape,
   type ButtonSize,
   type ButtonVariant,
@@ -113,15 +115,29 @@ export function ButtonPlayground() {
   const [color, setColor] = useState<ButtonColor>("accent");
   const [shape, setShape] = useState<ButtonShape>("square");
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState<ButtonFeedback | "off">("off");
   const [disabled, setDisabled] = useState(false);
+  const [fullWidth, setFullWidth] = useState(false);
 
   return (
     <div>
       <DemoStage height={400} className="!mt-0">
         <CautionTape complete />
-        <GarageButton variant={variant} size={size} color={color} shape={shape} loading={loading} disabled={disabled} sound>
-          Compose
-        </GarageButton>
+        <div className={fullWidth ? "w-full max-w-[280px]" : undefined}>
+          <GarageButton
+            variant={variant}
+            size={size}
+            color={color}
+            shape={shape}
+            loading={loading}
+            feedback={feedback === "off" ? null : feedback}
+            disabled={disabled}
+            fullWidth={fullWidth}
+            sound
+          >
+            Compose
+          </GarageButton>
+        </div>
       </DemoStage>
 
       <div className="mt-6">
@@ -149,14 +165,26 @@ export function ButtonPlayground() {
         <PropRow name="loading" options="boolean">
           <Checkbox label="Loading" checked={loading} onChange={setLoading} />
         </PropRow>
+        <PropRow name="feedback" options={BUTTON_FEEDBACKS.join(" | ")}>
+          <Segmented
+            id="feedback"
+            label="Feedback"
+            options={["off", ...BUTTON_FEEDBACKS] as const}
+            value={feedback}
+            onChange={setFeedback}
+          />
+        </PropRow>
         <PropRow name="disabled" options="boolean">
           <Checkbox label="Disabled" checked={disabled} onChange={setDisabled} />
+        </PropRow>
+        <PropRow name="fullWidth" options="boolean">
+          <Checkbox label="Full width" checked={fullWidth} onChange={setFullWidth} />
         </PropRow>
       </div>
 
       <div className="mt-6">
-        <CodeBlock copy={playgroundCode({ variant, size, color, shape, loading, disabled })}>
-          {playgroundCode({ variant, size, color, shape, loading, disabled })}
+        <CodeBlock copy={playgroundCode({ variant, size, color, shape, loading, feedback, disabled, fullWidth })}>
+          {playgroundCode({ variant, size, color, shape, loading, feedback, disabled, fullWidth })}
         </CodeBlock>
       </div>
     </div>
@@ -169,7 +197,9 @@ function playgroundCode(props: {
   color: ButtonColor;
   shape: ButtonShape;
   loading: boolean;
+  feedback: ButtonFeedback | "off";
   disabled: boolean;
+  fullWidth: boolean;
 }) {
   const attrs = [
     props.variant !== "solid" && `variant="${props.variant}"`,
@@ -177,6 +207,8 @@ function playgroundCode(props: {
     props.size !== "medium" && `size="${props.size}"`,
     props.shape !== "square" && `shape="${props.shape}"`,
     props.loading && "loading",
+    props.feedback !== "off" && `feedback="${props.feedback}"`,
+    props.fullWidth && "fullWidth",
     props.disabled && "disabled",
   ].filter(Boolean);
   return `<Button${attrs.length ? ` ${attrs.join(" ")}` : ""}>Compose</Button>`;
@@ -234,6 +266,82 @@ export function LoadingDemo() {
           </GarageButton>
         </DemoStage>
       </div>
+    </DemoCode>
+  );
+}
+
+const FEEDBACK_CODE = `const [saving, setSaving] = useState(false);
+const [feedback, setFeedback] = useState<"success" | "error" | null>(null);
+
+<Button
+  loading={saving}
+  loadingLabel="Saving"
+  feedback={feedback}
+  feedbackLabel={feedback === "success" ? "Saved" : "Couldn’t save"}
+  onClick={async () => {
+    setFeedback(null);
+    setSaving(true);
+    try {
+      await save();
+      setFeedback("success");
+    } catch {
+      setFeedback("error");
+    } finally {
+      setSaving(false);
+    }
+  }}
+>
+  Save
+</Button>`;
+
+function useFeedbackRun() {
+  const [phase, setPhase] = useState<"idle" | "loading" | ButtonFeedback>("idle");
+
+  useEffect(() => {
+    if (phase !== "success" && phase !== "error") return;
+    const id = window.setTimeout(() => setPhase("idle"), 1600);
+    return () => window.clearTimeout(id);
+  }, [phase]);
+
+  const run = (outcome: ButtonFeedback) => {
+    if (phase !== "idle") return;
+    setPhase("loading");
+    window.setTimeout(() => setPhase(outcome), 1100);
+  };
+
+  return { phase, run };
+}
+
+export function FeedbackDemo() {
+  const save = useFeedbackRun();
+  const fail = useFeedbackRun();
+
+  return (
+    <DemoCode code={FEEDBACK_CODE}>
+      <DemoStage caption="Press Save or Fail — loading, then the outcome">
+        <div className="flex items-center gap-3">
+          <GarageButton
+            loading={save.phase === "loading"}
+            loadingLabel="Saving"
+            feedback={save.phase === "success" || save.phase === "error" ? save.phase : null}
+            feedbackLabel={save.phase === "success" ? "Saved" : save.phase === "error" ? "Couldn’t save" : undefined}
+            onClick={() => save.run("success")}
+          >
+            Save
+          </GarageButton>
+          <GarageButton
+            variant="outline"
+            color="red"
+            loading={fail.phase === "loading"}
+            loadingLabel="Saving"
+            feedback={fail.phase === "error" ? "error" : null}
+            feedbackLabel="Couldn’t save"
+            onClick={() => fail.run("error")}
+          >
+            Fail
+          </GarageButton>
+        </div>
+      </DemoStage>
     </DemoCode>
   );
 }
@@ -1060,7 +1168,7 @@ export function SplitButtonDemo() {
   );
 }
 
-const FULL_WIDTH_CODE = '<Button className="w-full sm:w-auto">\n  Continue\n</Button>';
+const FULL_WIDTH_CODE = '<Button fullWidth className="sm:w-auto">\n  Continue\n</Button>';
 
 export function FullWidthDemo() {
   const ref = useRef<HTMLDivElement>(null);
@@ -1074,7 +1182,7 @@ export function FullWidthDemo() {
             <span className="h-2.5 w-24 rounded-full bg-white/15" aria-hidden />
             <span className="h-9 rounded-[10px] bg-white/[0.06]" aria-hidden />
             <span className="h-9 rounded-[10px] bg-white/[0.06]" aria-hidden />
-            <GarageButton className="mt-2 w-full" loading={loading} loadingLabel="Creating account">
+            <GarageButton className="mt-2 sm:w-auto" fullWidth loading={loading} loadingLabel="Creating account">
               Continue
             </GarageButton>
           </div>
@@ -1106,8 +1214,9 @@ const USAGE_EMPHASIS_CODE = `<Button variant="ghost" color="black">Cancel</Butto
 
 const USAGE_COLOUR_CODE = `<Button color="red">Delete Project</Button>`;
 
-const USAGE_DISABLED_CODE = `<Button disabled aria-describedby="email-hint">Continue</Button>
-<span id="email-hint">Add an email address first</span>`;
+const USAGE_DISABLED_CODE = `<Button disabled disabledReason="Add an email address first">
+  Continue
+</Button>`;
 
 export function UsageEmphasisDemo() {
   return (
@@ -1148,15 +1257,10 @@ export function UsageDisabledDemo() {
   return (
     <DemoCode code={USAGE_DISABLED_CODE}>
       <UsagePair>
-        <UsageCard good note="If a button has to be disabled, say why right next to it.">
-          <div className="flex flex-col items-center gap-2">
-            <GarageButton disabled aria-describedby="usage-email-hint">
-              Continue
-            </GarageButton>
-            <span id="usage-email-hint" className="text-[12px] text-white/45">
-              Add an email address first
-            </span>
-          </div>
+        <UsageCard good note="disabledReason explains the grey-out for hover and screen readers.">
+          <GarageButton disabled disabledReason="Add an email address first">
+            Continue
+          </GarageButton>
         </UsageCard>
         <UsageCard good={false} note="A disabled button on its own leaves people guessing what they missed.">
           <GarageButton disabled>Continue</GarageButton>
@@ -1198,37 +1302,5 @@ export function RtlDemo() {
         ))}
       </div>
     </DemoCode>
-  );
-}
-
-export function ButtonMatrix() {
-  const variants = ["solid", "soft", "outline", "ghost"] as const;
-  const rows = [false, true].flatMap((withIcons) =>
-    BUTTON_COLORS.flatMap((color) =>
-      BUTTON_SHAPES.flatMap((shape) => variants.map((variant) => ({ withIcons, color, shape, variant }))),
-    ),
-  );
-
-  return (
-    <div className="no-scrollbar mt-12 grid gap-3 overflow-x-auto overflow-y-hidden border-t border-white/10 pt-12">
-      {rows.map(({ withIcons, color, shape, variant }) => (
-        <div key={`${withIcons}-${color}-${shape}-${variant}`} className="grid grid-cols-[repeat(5,max-content)] items-center gap-2">
-          {BUTTON_SIZES.map((size) => (
-            <GarageButton
-              key={size}
-              variant={variant}
-              color={color}
-              shape={shape}
-              size={size}
-              prefix={withIcons ? <SearchIcon /> : undefined}
-              suffix={withIcons ? <PlusCircleIcon /> : undefined}
-              sound
-            >
-              {withIcons ? "Search" : "Compose"}
-            </GarageButton>
-          ))}
-        </div>
-      ))}
-    </div>
   );
 }

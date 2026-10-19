@@ -5,6 +5,7 @@ import {
   cloneElement,
   isValidElement,
   useEffect,
+  useId,
   useState,
   type CSSProperties,
   type KeyboardEvent,
@@ -19,13 +20,20 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion";
 export const BUTTON_VARIANTS = ["solid", "soft", "ghost", "outline"] as const;
 export const BUTTON_SIZES = ["micro", "tiny", "small", "medium", "large"] as const;
 export const BUTTON_COLORS = ["accent", "blue", "red", "amber", "black"] as const;
-export const BUTTON_SHAPES = ["square", "round"] as const;
+export const BUTTON_SHAPES = ["sharp", "square", "round"] as const;
+export const BUTTON_FEEDBACKS = ["success", "error"] as const;
 
 export type ButtonVariant = (typeof BUTTON_VARIANTS)[number];
 export type ButtonSize = (typeof BUTTON_SIZES)[number];
 export type ButtonColor = (typeof BUTTON_COLORS)[number];
 export type ButtonShape = (typeof BUTTON_SHAPES)[number];
 export type ButtonTheme = "dark" | "light";
+export type ButtonFeedback = (typeof BUTTON_FEEDBACKS)[number];
+
+const FEEDBACK_SWATCH: Record<ButtonFeedback, Swatch> = {
+  success: hueSwatch("#5ADBA5", "#0A0A0A", 160, "#5ADBA5"),
+  error: hueSwatch("oklch(0.63 0.2555 29.02)", "#FFFFFF", 29.02, "oklch(0.79 0.1892 29.02)"),
+};
 
 interface Swatch {
   solid: string;
@@ -163,6 +171,14 @@ export interface GarageButtonProps {
   theme?: ButtonTheme;
   loading?: boolean;
   disabled?: boolean;
+  /** Post-press outcome. Shows a check or cross and holds the button inert until cleared. */
+  feedback?: ButtonFeedback | null;
+  /** Announced when feedback flips on. Defaults to "Success" / "Something went wrong". */
+  feedbackLabel?: string;
+  /** Explains why the button is disabled. Sets `title` and wires `aria-describedby`. */
+  disabledReason?: string;
+  /** Stretch to the width of the parent. */
+  fullWidth?: boolean;
   prefix?: ReactNode;
   suffix?: ReactNode;
   /** Square icon-only button. */
@@ -189,6 +205,32 @@ export interface GarageButtonProps {
   type?: "button" | "submit";
 }
 
+function StatusIcon({ kind, size }: { kind: ButtonFeedback; size: number }) {
+  const stroke = Math.max(1.5, size / 7);
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden style={{ display: "block" }}>
+      {kind === "success" ? (
+        <path
+          d="M3.5 8.5 6.5 11.5 12.5 4.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : (
+        <path
+          d="M4.5 4.5 11.5 11.5 M11.5 4.5 4.5 11.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+        />
+      )}
+    </svg>
+  );
+}
+
 export function GarageButton({
   children,
   variant = "solid",
@@ -198,6 +240,10 @@ export function GarageButton({
   theme = "dark",
   loading = false,
   disabled = false,
+  feedback = null,
+  feedbackLabel,
+  disabledReason,
+  fullWidth = false,
   prefix,
   suffix,
   icon = false,
@@ -221,16 +267,28 @@ export function GarageButton({
   const [releaseDelay, setReleaseDelay] = useState<number | null>(null);
   const [forcePressed, setForcePressed] = useState(false);
   const [node, setNode] = useState<HTMLElement | null>(null);
+  const reasonId = useId();
   const systemReducedMotion = useReducedMotion();
   const calm = reducedMotion ?? systemReducedMotion;
 
   const metrics = SIZE_METRICS[size];
-  const swatch = theme === "light" && color === "black" ? LIGHT_BLACK : SWATCHES[color];
-  const colors = paint(variant, swatch, theme, disabled);
-  const inert = disabled || loading;
+  const baseSwatch = theme === "light" && color === "black" ? LIGHT_BLACK : SWATCHES[color];
+  const swatch = feedback ? FEEDBACK_SWATCH[feedback] : baseSwatch;
+  const colors = paint(variant, swatch, theme, disabled && !feedback);
+  const status = loading ? "loading" : feedback ? "feedback" : "idle";
+  const inert = disabled || status !== "idle";
   const pressed = !inert && (forcedPressed ?? (pointerPressed || keyPressed));
   const pressKeys = render ? ["Enter"] : ["Enter", " "];
   const accessibleName = aria["aria-label"];
+  const describedBy = [aria["aria-describedby"], disabled && disabledReason ? reasonId : null].filter(Boolean).join(" ") || undefined;
+  const announced =
+    status === "loading"
+      ? loadingLabel
+      : feedback === "success"
+        ? (feedbackLabel ?? "Success")
+        : feedback === "error"
+          ? (feedbackLabel ?? "Something went wrong")
+          : "";
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production" && icon && !accessibleName) {
@@ -291,21 +349,22 @@ export function GarageButton({
     minWidth: icon ? metrics.height : undefined,
     paddingInline: icon ? 0 : metrics.padding,
     fontSize: metrics.font,
-    borderRadius: shape === "round" ? 999 : metrics.radius,
+    borderRadius: shape === "round" ? 999 : shape === "sharp" ? 0 : metrics.radius,
     gap: metrics.gap,
     transform: calm
       ? undefined
       : `scale(${pressed ? (forcePressed ? FORCE_PRESS_SCALE : touchPress || simulateTouch ? TOUCH_PRESS_SCALE : PRESS_SCALE) : 1})`,
   } as CSSProperties;
 
+  const leadingVisible = status !== "idle";
   const content = (
     <span className="inline-flex items-center justify-center overflow-x-clip" style={{ gap: metrics.gap }}>
       <span
         className="flex shrink-0 items-center justify-center"
         style={{
           width: metrics.icon,
-          marginInlineStart: loading ? 0 : -(metrics.icon + metrics.gap),
-          opacity: loading ? 1 : 0,
+          marginInlineStart: leadingVisible ? 0 : -(metrics.icon + metrics.gap),
+          opacity: leadingVisible ? 1 : 0,
           transition: calm
             ? "opacity 120ms ease"
             : "margin-inline-start 260ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 180ms ease",
@@ -313,6 +372,7 @@ export function GarageButton({
         aria-hidden
       >
         {loading ? <Spinner size={metrics.icon} dynamic={dynamicSpinner && !calm} /> : null}
+        {!loading && feedback ? <StatusIcon kind={feedback} size={metrics.icon} /> : null}
       </span>
       {prefix ? <span className="flex shrink-0 items-center [&>svg]:size-[1em]">{prefix}</span> : null}
       {children ? <span className="whitespace-nowrap">{children}</span> : null}
@@ -322,11 +382,13 @@ export function GarageButton({
 
   const shared = {
     "data-pressed": pressed ? "" : undefined,
+    "data-feedback": feedback || undefined,
     "aria-disabled": inert || undefined,
     "aria-busy": loading || undefined,
-    className: `relative inline-flex shrink-0 touch-manipulation items-center justify-center after:absolute after:top-1/2 after:left-1/2 after:size-full after:min-h-11 after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] font-normal leading-none whitespace-nowrap select-none outline-offset-2 [-webkit-tap-highlight-color:transparent] transition-[transform,background-color,color] duration-150 ease-out focus-visible:outline-2 focus-visible:outline-[#02BCEA] bg-[var(--b-bg)] text-[var(--b-fg)] border border-[var(--b-border)] shadow-[inset_0_0_0_1px_var(--b-ring)] hover:bg-[var(--b-hover)] data-[pressed]:bg-[var(--b-press)] forced-colors:border-[ButtonBorder] ${
-      inert ? "cursor-not-allowed forced-colors:text-[GrayText]" : "cursor-pointer"
-    } ${className}`,
+    title: disabled && disabledReason ? disabledReason : undefined,
+    className: `relative inline-flex shrink-0 touch-manipulation items-center justify-center after:absolute after:top-1/2 after:left-1/2 after:size-full after:min-h-11 after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] font-normal leading-none whitespace-nowrap select-none outline-offset-2 [-webkit-tap-highlight-color:transparent] transition-[transform,background-color,color,border-color] duration-150 ease-out focus-visible:outline-2 focus-visible:outline-[#02BCEA] bg-[var(--b-bg)] text-[var(--b-fg)] border border-[var(--b-border)] shadow-[inset_0_0_0_1px_var(--b-ring)] hover:bg-[var(--b-hover)] data-[pressed]:bg-[var(--b-press)] forced-colors:border-[ButtonBorder] ${
+      fullWidth ? "w-full" : ""
+    } ${inert ? "cursor-not-allowed forced-colors:text-[GrayText]" : "cursor-pointer"} ${className}`,
     style,
     onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
       if (inert) return;
@@ -361,19 +423,28 @@ export function GarageButton({
       onClick?.(event);
     },
     ...aria,
+    "aria-describedby": describedBy,
   };
 
   const announcement = (
     <span className="sr-only" aria-live="polite">
-      {loading ? loadingLabel : ""}
+      {announced}
     </span>
   );
+
+  const reason =
+    disabled && disabledReason ? (
+      <span id={reasonId} className="sr-only">
+        {disabledReason}
+      </span>
+    ) : null;
 
   if (render && isValidElement(render)) {
     return (
       <>
         {cloneElement(render, { ...shared, ref: setNode, children: content })}
         {announcement}
+        {reason}
       </>
     );
   }
@@ -384,6 +455,7 @@ export function GarageButton({
         {content}
       </button>
       {announcement}
+      {reason}
     </>
   );
 }

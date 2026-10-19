@@ -2,9 +2,9 @@ import {
   AffixDemo,
   AnnounceDemo,
   ButtonGroupDemo,
-  ButtonMatrix,
   ButtonPlayground,
   DisabledDemo,
+  FeedbackDemo,
   ForcePressDemo,
   FullWidthDemo,
   IconOnlyDemo,
@@ -32,11 +32,15 @@ const PROP_ROWS = [
   ["variant", "solid | soft | outline | ghost", "solid", "Appearance only. Never changes the colour."],
   ["color", "accent | blue | red | amber | black", "accent", "Hue for every variant."],
   ["size", "micro | tiny | small | medium | large", "medium", "Height from 26px to 40px."],
-  ["shape", "square | round", "square", "Round makes it a pill."],
+  ["shape", "sharp | square | round", "square", "Sharp is 0 radius. Round makes it a pill."],
   ["theme", "dark | light", "dark", "Surface it sits on. Light surfaces darken on press."],
   ["loading", "boolean", "false", "Shows the spinner and blocks clicks without greying out."],
   ["loadingLabel", "string", "Loading", "Announced to screen readers when loading starts."],
+  ["feedback", "success | error | null", "null", "Post-press check or cross. Holds the button until you clear it."],
+  ["feedbackLabel", "string", "–", "Announced when feedback flips on."],
   ["disabled", "boolean", "false", "Greys out and blocks clicks. Stays in the tab order."],
+  ["disabledReason", "string", "–", "Explains a disabled button via title and aria-describedby."],
+  ["fullWidth", "boolean", "false", "Stretch to the parent width."],
   ["prefix / suffix", "ReactNode", "–", "Slots before and after the label, for icons or a Kbd."],
   ["icon", "boolean", "false", "Square icon-only button. Needs aria-label."],
   ["aria-label", "string", "–", "Accessible name. Required with icon."],
@@ -141,8 +145,8 @@ export function GarageButtonPage({ sources }: { sources: readonly SourceFile[] }
         </p>
         <SplitButtonDemo />
         <p>
-          On a phone, the main action stretches to the full width so it&apos;s easy to reach with a thumb. From{" "}
-          <Code>sm</Code> up it goes back to its natural width.
+          On a phone, the main action stretches to the full width so it&apos;s easy to reach with a thumb.{" "}
+          <Code>fullWidth</Code> does that; from <Code>sm</Code> up you can override with a width class.
         </p>
         <FullWidthDemo />
       </GarageSection>
@@ -165,6 +169,19 @@ export function GarageButtonPage({ sources }: { sources: readonly SourceFile[] }
           on repeat.
         </p>
         <SpinnerDemo />
+      </GarageSection>
+
+      <GarageSection title="After the Press">
+        <p>
+          Loading covers the wait. It doesn&apos;t say what happened when the wait ended.{" "}
+          <Code>feedback=&quot;success&quot;</Code> or <Code>feedback=&quot;error&quot;</Code> paints the button, swaps the
+          spinner for a check or a cross, and announces the outcome. Clear it when the next press should be allowed.
+        </p>
+        <FeedbackDemo />
+        <p>
+          Pair it with <Code>loading</Code> for the full trip: press → wait → done.{" "}
+          <Code>feedbackLabel</Code> sets what a screen reader hears, the same way <Code>loadingLabel</Code> does for the wait.
+        </p>
       </GarageSection>
 
       <GarageSection title="Disabled States">
@@ -207,8 +224,9 @@ export function GarageButtonPage({ sources }: { sources: readonly SourceFile[] }
           of the page the moment a request starts.
         </p>
         <p>
-          The spinner is decorative, so a polite live region says what&apos;s happening instead. The wording is a prop:{" "}
-          <Code>loadingLabel=&quot;Sending&quot;</Code>.
+          The spinner and feedback icons are decorative, so a polite live region says what&apos;s happening instead. The wording
+          is a prop: <Code>loadingLabel=&quot;Sending&quot;</Code>, and the same idea for{" "}
+          <Code>feedbackLabel</Code> after the press.
         </p>
         <AnnounceDemo />
         <p>
@@ -297,8 +315,6 @@ export function GarageButtonPage({ sources }: { sources: readonly SourceFile[] }
         </p>
         <DataTable head={["Environment", "Status", "Notes"]} rows={TEST_ROWS} />
       </GarageSection>
-
-      <ButtonMatrix />
     </article>
   );
 }
