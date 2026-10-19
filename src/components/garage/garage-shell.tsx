@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
-import { GaragePageAside } from "@/components/garage/garage-page-aside";
+import { GaragePageAside, GarageResourcesNav } from "@/components/garage/garage-page-aside";
 import { useSubpageScrollReset } from "@/hooks/use-index-scroll-reset";
 import { FOCUS_RING } from "@/lib/a11y";
 import { trackGarageView } from "@/lib/analytics";
@@ -56,9 +56,9 @@ function NavItem({
 }) {
   if (item.slug === undefined) {
     return (
-      <li className="py-1 leading-5">
+      <li>
         <span
-          className="text-white/25 line-through decoration-white/25"
+          className="block px-2.5 py-[7px] text-[14px] leading-[1.55] text-white/25 line-through decoration-white/25"
           title="Not built yet"
           data-cursor-label="still on the lift"
           data-cursor-color="yellow"
@@ -78,7 +78,7 @@ function NavItem({
         <Link
           href={href}
           aria-current={active ? "page" : undefined}
-          className={`block rounded-lg px-2.5 py-1.5 text-[14px] transition-colors ${FOCUS_RING} ${
+          className={`block rounded-lg px-2.5 py-[7px] text-[14px] leading-[1.55] transition-colors ${FOCUS_RING} ${
             active ? "bg-white/10 text-white" : "text-white/55 hover:bg-white/[0.06] hover:text-white"
           }`}
         >
@@ -89,13 +89,13 @@ function NavItem({
   }
 
   return (
-    <li className="py-1 leading-5">
+    <li>
       <Link
         href={href}
         aria-current={active ? "page" : undefined}
-        className={`rounded-sm font-semibold transition-colors ${FOCUS_RING} ${
+        className={`block rounded-sm px-2.5 py-[7px] text-[14px] leading-[1.55] transition-colors ${FOCUS_RING} ${
           active
-            ? "text-white underline decoration-[#02BCEA] decoration-wavy decoration-[1.5px] underline-offset-[5px]"
+            ? "font-medium text-white underline decoration-[#02BCEA] decoration-wavy decoration-[1.5px] underline-offset-[5px]"
             : "text-white/60 hover:text-white"
         }`}
       >
@@ -140,12 +140,12 @@ export function GarageShell({ children }: { children: ReactNode }) {
       data-cursor-color="cyan"
       className="fixed inset-0 z-10 flex flex-col overflow-hidden bg-background text-white outline-none"
     >
-      <div className="mx-auto flex min-h-0 w-full max-w-[1240px] flex-1 flex-col px-5 sm:px-8">
-        <header className="grid shrink-0 gap-6 bg-background pt-16 pb-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-x-[61px] xl:grid-cols-[200px_minmax(0,1fr)_160px] lg:pt-20 lg:pb-8">
-          <div className="flex items-center">
+      <div className="mx-auto flex min-h-0 w-full max-w-[1440px] flex-1 flex-col px-4 sm:px-6 xl:max-w-none xl:px-0">
+        <header className="grid shrink-0 gap-6 bg-background pt-16 pb-6 lg:grid-cols-[255px_minmax(0,1fr)] lg:gap-x-0 xl:grid-cols-[255px_minmax(0,1fr)_200px] lg:pt-20 lg:pb-8">
+          <div className="flex items-center lg:px-4">
             <GarageLogo />
           </div>
-          <h1 className="text-[16px] leading-5 text-[#EDEDED] lg:self-center 2xl:text-[18px]">{tagline}</h1>
+          <h1 className="text-[16px] leading-5 text-[#EDEDED] lg:self-center lg:px-16 2xl:text-[18px]">{tagline}</h1>
           <div className="hidden xl:block" aria-hidden />
 
           <nav aria-label="Garage" className="no-scrollbar -mx-1 flex gap-4 overflow-x-auto px-1 text-[14px] lg:col-span-2 xl:col-span-3 lg:hidden">
@@ -173,15 +173,12 @@ export function GarageShell({ children }: { children: ReactNode }) {
           </nav>
         </header>
 
-        <div className="grid min-h-0 flex-1 gap-8 lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-x-[61px] xl:grid-cols-[200px_minmax(0,1fr)_160px]">
-          <aside className="hidden h-full min-h-0 flex-col lg:flex">
-            <nav
-              aria-label="Garage"
-              className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-4 text-[16px] 2xl:text-[18px]"
-            >
+        <div className="grid min-h-0 flex-1 lg:grid-cols-[255px_minmax(0,1fr)] lg:gap-x-0 xl:grid-cols-[255px_minmax(0,1fr)_200px]">
+          <aside className="hidden h-full min-h-0 flex-col px-4 pt-1 pb-4 lg:flex">
+            <nav aria-label="Garage" className="no-scrollbar min-h-0 flex-1 overflow-y-auto pb-4 text-[14px]">
               {GARAGE_NAV.map((group) => (
-                <div key={group.title} className="mb-12 last:mb-4">
-                  <h3 className="mb-2 leading-5 text-[#A0A0A0]">{group.title}</h3>
+                <div key={group.title} className="mb-6 last:mb-2">
+                  <h3 className="mb-1 px-2.5 text-[12px] leading-5 text-[#A0A0A0]">{group.title}</h3>
                   <ul>
                     {group.items.map((item) => (
                       <NavItem key={item.label} item={item} pathname={pathname} />
@@ -191,7 +188,7 @@ export function GarageShell({ children }: { children: ReactNode }) {
               ))}
             </nav>
 
-            <div className="mt-auto shrink-0 border-t border-white/10 bg-background pt-5 pb-6">
+            <div className="mt-auto shrink-0 space-y-5 bg-background pt-5">
               <nav aria-label="Docs">
                 <p className="mb-2 px-2.5 text-[11px] font-semibold tracking-[0.08em] text-white/35 uppercase">
                   Docs
@@ -202,7 +199,8 @@ export function GarageShell({ children }: { children: ReactNode }) {
                   ))}
                 </ul>
               </nav>
-              <p className="mt-5 px-2.5 text-[12px] leading-5 text-white/35">
+              <GarageResourcesNav className="xl:hidden" />
+              <p className="px-2.5 text-[12px] leading-[1.55] text-white/35">
                 Designed by{" "}
                 <a
                   href="https://github.com/jatinbansalwork-commits"
@@ -214,7 +212,7 @@ export function GarageShell({ children }: { children: ReactNode }) {
             </div>
           </aside>
 
-          <div ref={contentRef} className="no-scrollbar min-h-0 overflow-y-auto pb-28">
+          <div ref={contentRef} className="no-scrollbar min-h-0 overflow-y-auto px-4 pb-28 sm:px-6 lg:px-16">
             {children}
           </div>
 

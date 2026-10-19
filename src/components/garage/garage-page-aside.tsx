@@ -12,7 +12,7 @@ import {
 
 function GitHubIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden className="shrink-0">
       <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
     </svg>
   );
@@ -20,7 +20,7 @@ function GitHubIcon() {
 
 function NpmIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+    <svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor" aria-hidden className="shrink-0">
       <path d="M0 0v16h16V0H0zm13 13h-2V5H8v8H3V3h10v10z" />
     </svg>
   );
@@ -34,6 +34,31 @@ function collectSections(root: HTMLElement) {
       return { id: section.id, title: heading.textContent?.trim() || section.id };
     })
     .filter((item): item is { id: string; title: string } => Boolean(item));
+}
+
+const resourceLink = `flex items-center gap-2 rounded-sm py-1.5 text-[13px] leading-[1.55] text-white/45 transition-colors hover:text-white ${FOCUS_RING}`;
+
+/** GitHub / npm / llms / version — right rail on xl, left footer below. */
+export function GarageResourcesNav({ className = "" }: { className?: string }) {
+  return (
+    <nav aria-label="Resources" className={className}>
+      <a href={GARAGE_GITHUB_URL} target="_blank" rel="noreferrer" className={resourceLink}>
+        <GitHubIcon />
+        GitHub
+      </a>
+      <a href={GARAGE_NPM_URL} target="_blank" rel="noreferrer" className={resourceLink}>
+        <NpmIcon />
+        npm
+      </a>
+      <a href="/llms.txt" className={`block rounded-sm py-1.5 text-[13px] leading-[1.55] text-white/45 transition-colors hover:text-white ${FOCUS_RING}`}>
+        llms.txt
+      </a>
+      <Link
+        href={`${ROUTES.garage}/release-notes`}
+        className={`mt-1.5 inline-flex rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[11px] leading-none text-white/55 transition-colors hover:border-white/20 hover:text-white ${FOCUS_RING}`}
+      >{`v${GARAGE_PACKAGE_VERSION}`}</Link>
+    </nav>
+  );
 }
 
 export function GaragePageAside({ scrollRootRef }: { scrollRootRef: RefObject<HTMLElement | null> }) {
@@ -85,19 +110,17 @@ export function GaragePageAside({ scrollRootRef }: { scrollRootRef: RefObject<HT
   }, [scrollRootRef, sections]);
 
   const linkClass = (active: boolean) =>
-    `block rounded-sm py-1 text-[13px] transition-colors ${FOCUS_RING} ${
+    `block rounded-sm py-1 text-[13px] leading-[1.55] transition-colors ${FOCUS_RING} ${
       active ? "text-white" : "text-white/45 hover:text-white/80"
     }`;
 
   return (
-    <aside className="hidden min-h-0 w-[160px] shrink-0 flex-col xl:flex">
-      <div className="sticky top-0 flex max-h-full flex-col gap-8 overflow-y-auto pb-6">
+    <aside className="hidden h-full min-h-0 w-[200px] shrink-0 flex-col px-4 pt-12 pb-5 xl:flex">
+      <div className="flex h-full min-h-0 flex-col gap-6">
         {sections.length > 0 ? (
-          <nav aria-label="On this page">
-            <p className="mb-2 text-[11px] font-semibold tracking-[0.08em] text-white/35 uppercase">
-              On this page
-            </p>
-            <ul className="space-y-0.5">
+          <nav aria-label="On this page" className="no-scrollbar min-h-0 flex-1 overflow-y-auto text-[13px]">
+            <p className="mb-1.5 text-[12px] leading-[1.55] text-white/40">On this page</p>
+            <ul>
               {sections.map((section) => (
                 <li key={section.id}>
                   <a
@@ -120,38 +143,11 @@ export function GaragePageAside({ scrollRootRef }: { scrollRootRef: RefObject<HT
               ))}
             </ul>
           </nav>
-        ) : null}
+        ) : (
+          <div className="flex-1" />
+        )}
 
-        <nav aria-label="Resources" className="mt-auto space-y-1">
-          <a
-            href={GARAGE_GITHUB_URL}
-            target="_blank"
-            rel="noreferrer"
-            className={`flex items-center gap-2 rounded-sm py-1 text-[13px] text-white/45 transition-colors hover:text-white ${FOCUS_RING}`}
-          >
-            <GitHubIcon />
-            GitHub
-          </a>
-          <a
-            href={GARAGE_NPM_URL}
-            target="_blank"
-            rel="noreferrer"
-            className={`flex items-center gap-2 rounded-sm py-1 text-[13px] text-white/45 transition-colors hover:text-white ${FOCUS_RING}`}
-          >
-            <NpmIcon />
-            npm
-          </a>
-          <a
-            href="/llms.txt"
-            className={`block rounded-sm py-1 text-[13px] text-white/45 transition-colors hover:text-white ${FOCUS_RING}`}
-          >
-            llms.txt
-          </a>
-          <Link
-            href={`${ROUTES.garage}/release-notes`}
-            className={`mt-2 inline-flex rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[11px] text-white/55 transition-colors hover:border-white/20 hover:text-white ${FOCUS_RING}`}
-          >{`v${GARAGE_PACKAGE_VERSION}`}</Link>
-        </nav>
+        <GarageResourcesNav className="mt-auto shrink-0 text-[13px]" />
       </div>
     </aside>
   );
